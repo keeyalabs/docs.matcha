@@ -28,6 +28,7 @@ export default async function RootLayout({
     <html lang="en" className={GeistSans.className} suppressHydrationWarning>
       <body className={GeistMono.variable}>
         <Layout
+          copyPageButton={false}
           darkMode={false}
           docsRepositoryBase="https://github.com/usematcha/usematcha.dev"
           editLink={null}

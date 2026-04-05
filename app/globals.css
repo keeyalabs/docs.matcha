@@ -92,6 +92,36 @@ a {
   color: var(--matcha-ink);
 }
 
+.smart-copy-page {
+  margin-bottom: 0.75rem;
+}
+
+.smart-copy-page-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--matcha-rule);
+  border-radius: 0.5rem;
+  background: rgba(255, 255, 255, 0.72);
+  color: var(--matcha-muted);
+  font-size: 0.92rem;
+  font-weight: 500;
+  line-height: 1;
+  transition: color 150ms ease, border-color 150ms ease, background-color 150ms ease, opacity 150ms ease;
+}
+
+.smart-copy-page-button:hover,
+.smart-copy-page-button:focus-visible {
+  color: var(--matcha-ink);
+  border-color: #d8dce2;
+  background: rgba(255, 255, 255, 0.95);
+}
+
+.smart-copy-page-button.is-copied {
+  opacity: 0.72;
+}
+
 code,
 pre,
 .font-mono {
