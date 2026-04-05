@@ -34,7 +34,7 @@ a {
 .brand-mark {
   color: #000;
   font-size: 33px;
-  letter-spacing: 0.035em;
+  letter-spacing: -0.025em;
   line-height: 1;
   text-transform: lowercase;
 }

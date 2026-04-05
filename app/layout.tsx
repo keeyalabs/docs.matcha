@@ -43,7 +43,7 @@ export default async function RootLayout({
                   <span className={`brand-mark ${GeistPixelGrid.className}`}>matcha</span>
                 </span>
               }
-          logoLink="/"
+          logoLink="https://usematcha.dev"
         >
           <a
             className="nav-icon-link nav-icon-link-docs"

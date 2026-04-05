@@ -1,0 +1,86 @@
+---
+title: Home
+description: Matcha docs home for developers.
+breadcrumb: false
+copyPage: false
+---
+
+import { HomeFaqInline } from '@/components/HomeFaq'
+import { ManualPageNav } from '@/components/ManualPageNav'
+
+<div className="home-flow home-page-flow">
+
+# Energy observability for AI workloads
+
+Matcha helps you understand how AI workloads actually use compute.
+
+It measures energy, runtime, and efficiency directly from your training runs, exposing signals that are usually hidden behind infrastructure and system logs. Instead of relying only on loss or throughput, Matcha lets you observe how compute is consumed as your workload executes.
+
+You run your training script as usual. Matcha runs alongside it and records energy usage, runtime, and step-level efficiency, turning each run into a measurable experiment.
+
+<div className="home-diagram">
+  <svg width="100%" viewBox="0 0 760 340" xmlns="http://www.w3.org/2000/svg" aria-label="Matcha workflow from run to measure, analyze, and compare">
+    <style>
+      {`
+        text { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; }
+        .title { font-size: 14px; font-weight: 500; fill: #2C2C2A; }
+        .sub { font-size: 12px; font-weight: 400; fill: #5F5E5A; }
+        .mono { font-size: 12px; font-weight: 400; fill: #2C2C2A; font-family: "SF Mono", "Fira Code", "Consolas", monospace; }
+        .mono-dim { font-size: 12px; font-weight: 400; fill: #888780; font-family: "SF Mono", "Fira Code", "Consolas", monospace; }
+        .mono-muted { font-size: 12px; font-weight: 400; fill: #B4B2A9; font-family: "SF Mono", "Fira Code", "Consolas", monospace; }
+        .box { fill: #F1EFE8; stroke: #D3D1C7; stroke-width: 0.5; }
+        .terminal { fill: #F8F7F4; stroke: #D3D1C7; stroke-width: 0.5; }
+      `}
+    </style>
+
+    <defs>
+      <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+        <path d="M2 1L8 5L2 9" fill="none" stroke="#B4B2A9" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+      </marker>
+    </defs>
+
+    <rect className="box" x="40" y="30" width="150" height="62" rx="8" />
+    <text className="title" x="115" y="52" textAnchor="middle" dominantBaseline="central">run</text>
+    <text className="sub" x="115" y="72" textAnchor="middle" dominantBaseline="central">Start your training</text>
+
+    <line x1="190" y1="61" x2="223" y2="61" stroke="#B4B2A9" strokeWidth="0.5" markerEnd="url(#arrow)" />
+
+    <rect className="box" x="226" y="30" width="150" height="62" rx="8" />
+    <text className="title" x="301" y="52" textAnchor="middle" dominantBaseline="central">measure</text>
+    <text className="sub" x="301" y="72" textAnchor="middle" dominantBaseline="central">Capture GPU energy</text>
+
+    <line x1="376" y1="61" x2="409" y2="61" stroke="#B4B2A9" strokeWidth="0.5" markerEnd="url(#arrow)" />
+
+    <rect className="box" x="412" y="30" width="150" height="62" rx="8" />
+    <text className="title" x="487" y="52" textAnchor="middle" dominantBaseline="central">analyze</text>
+    <text className="sub" x="487" y="72" textAnchor="middle" dominantBaseline="central">Break down per step</text>
+
+    <line x1="562" y1="61" x2="595" y2="61" stroke="#B4B2A9" strokeWidth="0.5" markerEnd="url(#arrow)" />
+
+    <rect className="box" x="598" y="30" width="150" height="62" rx="8" />
+    <text className="title" x="673" y="52" textAnchor="middle" dominantBaseline="central">compare</text>
+    <text className="sub" x="673" y="72" textAnchor="middle" dominantBaseline="central">Find what to optimize</text>
+
+    <line x1="40" y1="120" x2="748" y2="120" stroke="#D3D1C7" strokeWidth="0.5" />
+
+    <rect className="terminal" x="40" y="145" width="708" height="170" rx="8" />
+
+    <text className="mono-dim" x="60" y="172" dominantBaseline="central">$</text>
+    <text className="mono" x="76" y="172" dominantBaseline="central">pip install usematcha</text>
+
+    <text className="mono-dim" x="60" y="200" dominantBaseline="central">$</text>
+    <text className="mono" x="76" y="200" dominantBaseline="central">matcha run torchrun -​-nproc_per_node=8 train.py</text>
+
+    <line x1="60" y1="222" x2="728" y2="222" stroke="#D3D1C7" strokeWidth="0.5" strokeDasharray="3 3" />
+
+    <text className="mono-muted" x="60" y="250" dominantBaseline="central">step:1709/20000 val_bpb:1.3095 train_time:600097ms</text>
+    <text className="mono-muted" x="60" y="274" dominantBaseline="central">final_int8_zlib_roundtrip val_bpb:1.31072868</text>
+    <text className="mono" x="60" y="298" dominantBaseline="central">matcha_energy total:364722J (101Wh) avg_power:489W peak:700W</text>
+  </svg>
+</div>
+
+<HomeFaqInline />
+
+<ManualPageNav next={{ href: '/docs/overview', label: 'Get Started' }} />
+
+</div>
