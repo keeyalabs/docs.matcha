@@ -1,0 +1,12 @@
+.next
+node_modules
+dist
+out
+coverage
+*.log
+public/_pagefind
+.DS_Store
+.env
+.env.local
+.env.*.local
+.vercel

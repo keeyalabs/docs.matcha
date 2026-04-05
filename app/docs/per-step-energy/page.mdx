@@ -1,0 +1,202 @@
+---
+title: Per-Step Energy
+description: Measure energy for each training step with Matcha.
+---
+
+import { ManualPageNav } from '@/components/ManualPageNav'
+
+<div className="home-flow">
+
+# Per-Step Energy
+
+## Using matcha wrap
+
+<div className="home-diagram">
+  <svg width="100%" viewBox="0 0 680 260" xmlns="http://www.w3.org/2000/svg" aria-label="Matcha wrap output">
+    <style>
+      {`
+        text { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; }
+        .mono { font-size: 12px; font-weight: 400; fill: #2C2C2A; font-family: "SF Mono", "Fira Code", "Consolas", monospace; }
+        .mono-dim { font-size: 12px; font-weight: 400; fill: #888780; font-family: "SF Mono", "Fira Code", "Consolas", monospace; }
+        .mono-muted { font-size: 12px; font-weight: 400; fill: #B4B2A9; font-family: "SF Mono", "Fira Code", "Consolas", monospace; }
+        .terminal { fill: #F8F7F4; stroke: #D3D1C7; stroke-width: 0.5; }
+        .label { font-size: 11px; font-weight: 500; fill: #888780; letter-spacing: 0.5px; }
+        .energy { fill: #3B7A3B; font-weight: 500; }
+      `}
+    </style>
+
+    <text className="label" x="40" y="24">MATCHA WRAP</text>
+    <rect className="terminal" x="40" y="34" width="600" height="210" rx="6" />
+
+    <text className="mono-dim" x="56" y="58" dominantBaseline="central">$</text>
+    <text className="mono" x="72" y="58" dominantBaseline="central">matcha wrap torchrun -​-standalone -​-nproc_per_node=1 train_gpt.py</text>
+
+    <line x1="56" y1="76" x2="624" y2="76" stroke="#D3D1C7" strokeWidth="0.5" strokeDasharray="3 3" />
+
+    <text className="mono-muted" x="56" y="96" dominantBaseline="central">warmup_step:20/20</text>
+
+    <text className="mono" x="56" y="118" dominantBaseline="central">step:1/20000 train_loss:6.9357 train_time:438ms</text>
+    <text className="energy mono" x="430" y="118" dominantBaseline="central">energy:106.7J/step</text>
+
+    <text className="mono" x="56" y="138" dominantBaseline="central">step:2/20000 train_loss:16.7414 train_time:833ms</text>
+    <text className="energy mono" x="430" y="138" dominantBaseline="central">energy:154.0J/step</text>
+
+    <text className="mono" x="56" y="158" dominantBaseline="central">step:3/20000 train_loss:8.7524 train_time:1258ms</text>
+    <text className="energy mono" x="430" y="158" dominantBaseline="central">energy:221.8J/step</text>
+
+    <text className="mono-muted" x="56" y="178" dominantBaseline="central">...</text>
+
+    <line x1="56" y1="194" x2="624" y2="194" stroke="#D3D1C7" strokeWidth="0.5" strokeDasharray="3 3" />
+
+    <text className="mono" x="56" y="214" dominantBaseline="central">matcha_energy gpus:NVIDIA H100 80GB HBM3 total:97271J</text>
+    <text className="mono" x="56" y="230" dominantBaseline="central">(27.02Wh) duration:202.9s avg_power:479W peak_power:701W</text>
+  </svg>
+</div>
+
+Non-step lines like config, warmup, and validation pass through unchanged.
+
+At the end, the same summary line as `matcha run` is printed:
+
+<div className="home-diagram">
+  <svg width="100%" viewBox="0 0 680 96" xmlns="http://www.w3.org/2000/svg" aria-label="Matcha wrap summary output">
+    <style>
+      {`
+        text { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; }
+        .mono { font-size: 12px; font-weight: 400; fill: #2C2C2A; font-family: "SF Mono", "Fira Code", "Consolas", monospace; }
+        .terminal { fill: #F8F7F4; stroke: #D3D1C7; stroke-width: 0.5; }
+        .label { font-size: 11px; font-weight: 500; fill: #888780; letter-spacing: 0.5px; }
+      `}
+    </style>
+
+    <text className="label" x="40" y="24">SUMMARY</text>
+    <rect className="terminal" x="40" y="34" width="600" height="40" rx="6" />
+    <text className="mono" x="56" y="58" dominantBaseline="central">matcha_energy gpus:NVIDIA H100 80GB HBM3 total:97271J (27.02Wh) duration:202.9s avg_power:479W peak_power:701W samples:2025</text>
+  </svg>
+</div>
+
+## How step detection works
+
+Matcha scans each line of stdout for patterns that indicate a training step. The following patterns are recognized:
+
+<div className="home-diagram">
+  <svg width="100%" viewBox="0 0 680 260" xmlns="http://www.w3.org/2000/svg" aria-label="Step detection patterns">
+    <style>
+      {`
+        text { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; }
+        .hdr { font-size: 12px; font-weight: 500; fill: #5F5E5A; }
+        .pattern { font-size: 12px; font-weight: 400; fill: #2C2C2A; font-family: "SF Mono", "Fira Code", "Consolas", monospace; }
+        .example { font-size: 12px; font-weight: 400; fill: #888780; font-family: "SF Mono", "Fira Code", "Consolas", monospace; }
+        .row-bg { fill: #F8F7F4; }
+      `}
+    </style>
+
+    <rect x="40" y="20" width="600" height="32" rx="6" fill="#ECEAE2" />
+    <text className="hdr" x="60" y="40" dominantBaseline="central">Pattern</text>
+    <text className="hdr" x="360" y="40" dominantBaseline="central">Example</text>
+
+    <rect x="40" y="56" width="600" height="32" className="row-bg" />
+    <text className="pattern" x="60" y="76" dominantBaseline="central">step N</text>
+    <text className="example" x="360" y="76" dominantBaseline="central">step 100</text>
+
+    <rect x="40" y="92" width="600" height="32" fill="none" />
+    <text className="pattern" x="60" y="112" dominantBaseline="central">step:N</text>
+    <text className="example" x="360" y="112" dominantBaseline="central">step:100/20000</text>
+
+    <rect x="40" y="128" width="600" height="32" className="row-bg" />
+    <text className="pattern" x="60" y="148" dominantBaseline="central">iter N</text>
+    <text className="example" x="360" y="148" dominantBaseline="central">iter 100</text>
+
+    <rect x="40" y="164" width="600" height="32" fill="none" />
+    <text className="pattern" x="60" y="184" dominantBaseline="central">iteration N</text>
+    <text className="example" x="360" y="184" dominantBaseline="central">iteration 100</text>
+
+    <rect x="40" y="200" width="600" height="32" className="row-bg" />
+    <text className="pattern" x="60" y="220" dominantBaseline="central">[N/M]</text>
+    <text className="example" x="360" y="220" dominantBaseline="central">[100/20000]</text>
+
+    <rect x="40" y="20" width="600" height="212" rx="6" fill="none" stroke="#D3D1C7" strokeWidth="0.5" />
+    <line x1="340" y1="20" x2="340" y2="232" stroke="#D3D1C7" strokeWidth="0.5" />
+  </svg>
+</div>
+
+Lines containing `warmup` are always skipped.
+
+When Matcha sees step `N`, it ends the measurement for the previous step and starts a new one. Energy is computed from the NVML readings collected between the two step markers.
+
+## Step gaps
+
+If your training script logs every 200 steps, for example step `10` and then step `200`, Matcha measures the total energy across that window and divides by the number of steps:
+
+<div className="home-diagram">
+  <svg width="100%" viewBox="0 0 680 110" xmlns="http://www.w3.org/2000/svg" aria-label="Per-step average over gaps">
+    <style>
+      {`
+        text { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; }
+        .mono { font-size: 12px; font-weight: 400; fill: #2C2C2A; font-family: "SF Mono", "Fira Code", "Consolas", monospace; }
+        .terminal { fill: #F8F7F4; stroke: #D3D1C7; stroke-width: 0.5; }
+        .label { font-size: 11px; font-weight: 500; fill: #888780; letter-spacing: 0.5px; }
+      `}
+    </style>
+
+    <text className="label" x="40" y="24">STEP GAPS</text>
+    <rect className="terminal" x="40" y="34" width="600" height="56" rx="6" />
+    <text className="mono" x="56" y="56" dominantBaseline="central">step:10/20000 ... energy:242.1J/step avg_power:535W peak_power:606W</text>
+    <text className="mono" x="56" y="76" dominantBaseline="central">step:200/20000 ... energy:356.6J/step avg_power:581W peak_power:700W</text>
+  </svg>
+</div>
+
+The `energy` field always shows a per-step average, whether the gap is 1 step or 500.
+
+## Reading per-step output
+
+Each step line gets three fields appended:
+
+| Field | Meaning |
+| --- | --- |
+| `energy` | Energy per step in joules, averaged over the step gap |
+| `avg_power` | Mean GPU power during this window |
+| `peak_power` | Peak GPU power during this window |
+
+## When to use wrap vs run
+
+Use `matcha run` for benchmark and production runs. It has zero overhead.
+
+Use `matcha wrap` for diagnosis, finding energy spikes, identifying inefficient phases, and comparing step-level behavior between configurations. It intercepts stdout so there is minor I/O overhead, though in our benchmarks this was within run-to-run variance.
+
+<div className="home-diagram">
+  <svg width="100%" viewBox="0 0 680 160" xmlns="http://www.w3.org/2000/svg" aria-label="matcha run versus matcha wrap">
+    <style>
+      {`
+        text { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; }
+        .title { font-size: 13px; font-weight: 500; fill: #2C2C2A; }
+        .sub { font-size: 11px; font-weight: 400; fill: #5F5E5A; }
+        .tag { font-size: 10px; font-weight: 500; fill: #5F5E5A; letter-spacing: 0.3px; }
+        .box { fill: #F1EFE8; stroke: #D3D1C7; stroke-width: 0.5; }
+        .accent { fill: #E8F5E0; stroke: #9CC78C; stroke-width: 0.5; }
+      `}
+    </style>
+
+    <rect className="accent" x="40" y="20" width="290" height="120" rx="10" />
+    <rect x="52" y="30" width="100" height="22" rx="4" fill="#9CC78C" opacity="0.3" />
+    <text className="tag" x="102" y="44" textAnchor="middle" dominantBaseline="central">RECOMMENDED</text>
+    <text className="title" x="60" y="72" dominantBaseline="central">matcha run</text>
+    <text className="sub" x="60" y="92" dominantBaseline="central">Total energy at the end</text>
+    <text className="sub" x="60" y="108" dominantBaseline="central">Zero overhead · No stdout piping</text>
+    <text className="sub" x="60" y="124" dominantBaseline="central">Use for benchmarks and production</text>
+
+    <rect className="box" x="350" y="20" width="290" height="120" rx="10" />
+    <rect x="362" y="30" width="78" height="22" rx="4" fill="#D3D1C7" opacity="0.3" />
+    <text className="tag" x="401" y="44" textAnchor="middle" dominantBaseline="central">DIAGNOSTIC</text>
+    <text className="title" x="370" y="72" dominantBaseline="central">matcha wrap</text>
+    <text className="sub" x="370" y="92" dominantBaseline="central">Energy per training step</text>
+    <text className="sub" x="370" y="108" dominantBaseline="central">Parses stdout for step markers</text>
+    <text className="sub" x="370" y="124" dominantBaseline="central">Use for finding inefficiencies</text>
+  </svg>
+</div>
+
+<ManualPageNav
+  prev={{ href: '/docs/quick-start', label: 'Quick Start' }}
+  next={{ href: '/docs/multi-gpu', label: 'Multi-GPU' }}
+/>
+
+</div>

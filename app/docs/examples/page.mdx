@@ -1,0 +1,177 @@
+---
+title: Examples
+description: Real training runs with energy data.
+---
+
+import { ManualPageNav } from '@/components/ManualPageNav'
+
+<div className="home-flow">
+
+# Examples
+
+All examples were run on NVIDIA H100 80GB HBM3 GPUs on RunPod.
+
+## Baseline training (17M params, 1xH100)
+
+nanoGPT-style model training on FineWeb with 1024 BPE vocabulary, 10-minute wallclock cap.
+
+<div className="home-diagram">
+  <svg width="100%" viewBox="0 0 680 280" xmlns="http://www.w3.org/2000/svg" aria-label="Baseline training example">
+    <style>
+      {`
+        text { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; }
+        .mono { font-size: 12px; font-weight: 400; fill: #2C2C2A; font-family: "SF Mono", "Fira Code", "Consolas", monospace; }
+        .mono-dim { font-size: 12px; font-weight: 400; fill: #888780; font-family: "SF Mono", "Fira Code", "Consolas", monospace; }
+        .mono-muted { font-size: 12px; font-weight: 400; fill: #B4B2A9; font-family: "SF Mono", "Fira Code", "Consolas", monospace; }
+        .terminal { fill: #F8F7F4; stroke: #D3D1C7; stroke-width: 0.5; }
+        .label { font-size: 11px; font-weight: 500; fill: #888780; letter-spacing: 0.5px; }
+        .stat-label { font-size: 12px; font-weight: 400; fill: #888780; }
+        .stat-value { font-size: 12px; font-weight: 500; fill: #2C2C2A; }
+      `}
+    </style>
+
+    <text className="label" x="40" y="24">BASELINE · 17M PARAMS · 1xH100 · 10 MIN</text>
+    <rect className="terminal" x="40" y="34" width="600" height="170" rx="6" />
+
+    <text className="mono-dim" x="56" y="56" dominantBaseline="central">$</text>
+    <text className="mono" x="72" y="56" dominantBaseline="central">matcha run torchrun -​-standalone -​-nproc_per_node=1 train_gpt.py</text>
+
+    <line x1="56" y1="74" x2="624" y2="74" stroke="#D3D1C7" strokeWidth="0.5" strokeDasharray="3 3" />
+
+    <text className="mono-muted" x="56" y="92" dominantBaseline="central">step:1/20000 train_loss:6.9357 train_time:409ms</text>
+    <text className="mono-muted" x="56" y="110" dominantBaseline="central">step:1000/20000 train_loss:2.4040 train_time:454482ms</text>
+    <text className="mono-muted" x="56" y="128" dominantBaseline="central">step:1312/20000 val_loss:2.2944 val_bpb:1.3589</text>
+    <text className="mono-muted" x="56" y="146" dominantBaseline="central">stopping_early: wallclock_cap step:1312/20000</text>
+
+    <line x1="56" y1="162" x2="624" y2="162" stroke="#D3D1C7" strokeWidth="0.5" strokeDasharray="3 3" />
+
+    <text className="mono" x="56" y="180" dominantBaseline="central">matcha_energy gpus:NVIDIA H100 80GB HBM3 total:370342J</text>
+    <text className="mono" x="56" y="196" dominantBaseline="central">(102.87Wh) duration:687.8s avg_power:538W peak_power:701W</text>
+
+    <text className="stat-label" x="40" y="234">steps</text>
+    <text className="stat-value" x="40" y="252">1,312</text>
+
+    <text className="stat-label" x="160" y="234">energy</text>
+    <text className="stat-value" x="160" y="252">103 Wh</text>
+
+    <text className="stat-label" x="280" y="234">avg power</text>
+    <text className="stat-value" x="280" y="252">538W (77% TDP)</text>
+
+    <text className="stat-label" x="460" y="234">cost</text>
+    <text className="stat-value" x="460" y="252">$0.01 energy · $0.48 compute</text>
+  </svg>
+</div>
+
+Key numbers: 1,312 steps in 10 minutes, 103 Wh total, 538W average draw (77% of 700W TDP).
+
+## SOTA model (27M params, 1xH100)
+
+Larger model with SWA, quantization-aware training, GPTQ compression, and sliding window evaluation.
+
+<div className="home-diagram">
+  <svg width="100%" viewBox="0 0 680 280" xmlns="http://www.w3.org/2000/svg" aria-label="SOTA training example">
+    <style>
+      {`
+        text { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; }
+        .mono { font-size: 12px; font-weight: 400; fill: #2C2C2A; font-family: "SF Mono", "Fira Code", "Consolas", monospace; }
+        .mono-dim { font-size: 12px; font-weight: 400; fill: #888780; font-family: "SF Mono", "Fira Code", "Consolas", monospace; }
+        .mono-muted { font-size: 12px; font-weight: 400; fill: #B4B2A9; font-family: "SF Mono", "Fira Code", "Consolas", monospace; }
+        .terminal { fill: #F8F7F4; stroke: #D3D1C7; stroke-width: 0.5; }
+        .label { font-size: 11px; font-weight: 500; fill: #888780; letter-spacing: 0.5px; }
+        .stat-label { font-size: 12px; font-weight: 400; fill: #888780; }
+        .stat-value { font-size: 12px; font-weight: 500; fill: #2C2C2A; }
+      `}
+    </style>
+
+    <text className="label" x="40" y="24">SOTA · 27M PARAMS · 1xH100 · 30 MIN (TRAINING + GPTQ + EVAL)</text>
+    <rect className="terminal" x="40" y="34" width="600" height="170" rx="6" />
+
+    <text className="mono-dim" x="56" y="56" dominantBaseline="central">$</text>
+    <text className="mono" x="72" y="56" dominantBaseline="central">matcha run torchrun -​-standalone -​-nproc_per_node=1 train_gpt_sota.py</text>
+
+    <line x1="56" y1="74" x2="624" y2="74" stroke="#D3D1C7" strokeWidth="0.5" strokeDasharray="3 3" />
+
+    <text className="mono-muted" x="56" y="92" dominantBaseline="central">step:909/20000 val_loss:2.3253 val_bpb:1.3772</text>
+    <text className="mono-muted" x="56" y="110" dominantBaseline="central">stopping_early: wallclock_cap step:909/20000</text>
+    <text className="mono-muted" x="56" y="128" dominantBaseline="central">gptq:generated 64 sequences in 204.3s</text>
+    <text className="mono-muted" x="56" y="146" dominantBaseline="central">final_int6_sliding_window val_bpb:1.8762</text>
+
+    <line x1="56" y1="162" x2="624" y2="162" stroke="#D3D1C7" strokeWidth="0.5" strokeDasharray="3 3" />
+
+    <text className="mono" x="56" y="180" dominantBaseline="central">matcha_energy gpus:NVIDIA H100 80GB HBM3 total:976085J</text>
+    <text className="mono" x="56" y="196" dominantBaseline="central">(271.13Wh) duration:1825.5s avg_power:535W peak_power:704W</text>
+
+    <text className="stat-label" x="40" y="234">steps</text>
+    <text className="stat-value" x="40" y="252">909</text>
+
+    <text className="stat-label" x="120" y="234">energy</text>
+    <text className="stat-value" x="120" y="252">271 Wh</text>
+
+    <text className="stat-label" x="240" y="234">avg power</text>
+    <text className="stat-value" x="240" y="252">535W (76% TDP)</text>
+
+    <text className="stat-label" x="420" y="234">vs baseline</text>
+    <text className="stat-value" x="420" y="252">2.6× energy (GPTQ + sliding eval)</text>
+  </svg>
+</div>
+
+Key numbers: 271 Wh total (2.6x the baseline) due to post-training GPTQ quantization and sliding window evaluation adding 20+ minutes beyond the 10-minute training cap.
+
+## Per-step energy (1xH100)
+
+<div className="home-diagram">
+  <svg width="100%" viewBox="0 0 680 300" xmlns="http://www.w3.org/2000/svg" aria-label="Per-step energy ramp-up example">
+    <style>
+      {`
+        text { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; }
+        .mono { font-size: 12px; font-weight: 400; fill: #2C2C2A; font-family: "SF Mono", "Fira Code", "Consolas", monospace; }
+        .mono-dim { font-size: 12px; font-weight: 400; fill: #888780; font-family: "SF Mono", "Fira Code", "Consolas", monospace; }
+        .terminal { fill: #F8F7F4; stroke: #D3D1C7; stroke-width: 0.5; }
+        .label { font-size: 11px; font-weight: 500; fill: #888780; letter-spacing: 0.5px; }
+        .energy { fill: #3B7A3B; font-weight: 500; }
+        .note { font-size: 11px; font-weight: 400; fill: #888780; font-style: italic; }
+      `}
+    </style>
+
+    <text className="label" x="40" y="24">PER-STEP ENERGY · GPU RAMP-UP VISIBLE</text>
+    <rect className="terminal" x="40" y="34" width="600" height="220" rx="6" />
+
+    <text className="mono-dim" x="56" y="56" dominantBaseline="central">$</text>
+    <text className="mono" x="72" y="56" dominantBaseline="central">matcha wrap torchrun -​-standalone -​-nproc_per_node=1 train_gpt.py</text>
+
+    <line x1="56" y1="74" x2="624" y2="74" stroke="#D3D1C7" strokeWidth="0.5" strokeDasharray="3 3" />
+
+    <text className="mono" x="56" y="94" dominantBaseline="central">step:0/20000 ... energy:60.3J/step</text>
+    <text className="note" x="430" y="94" dominantBaseline="central">← compiling, 200W</text>
+
+    <text className="mono" x="56" y="114" dominantBaseline="central">step:1/20000 ... energy:106.7J/step</text>
+    <text className="note" x="430" y="114" dominantBaseline="central">← warming up, 354W</text>
+
+    <text className="mono" x="56" y="134" dominantBaseline="central">step:2/20000 ... energy:154.0J/step</text>
+    <text className="note" x="430" y="134" dominantBaseline="central">← ramping, 508W</text>
+
+    <text className="mono" x="56" y="154" dominantBaseline="central">step:3/20000 ... energy:221.8J/step</text>
+    <text className="note" x="430" y="154" dominantBaseline="central">← near full, 551W</text>
+
+    <text className="mono-dim" x="56" y="174" dominantBaseline="central">...</text>
+
+    <text className="mono" x="56" y="194" dominantBaseline="central">step:200/20000 ... energy:368.1J/step</text>
+    <text className="note" x="430" y="194" dominantBaseline="central">← sustained, 590W</text>
+
+    <line x1="56" y1="210" x2="624" y2="210" stroke="#D3D1C7" strokeWidth="0.5" strokeDasharray="3 3" />
+
+    <text className="mono" x="56" y="232" dominantBaseline="central">matcha_energy gpus:NVIDIA H100 80GB HBM3 total:97271J</text>
+    <text className="mono" x="56" y="248" dominantBaseline="central">(27.02Wh) duration:202.9s avg_power:479W peak_power:701W</text>
+
+    <text className="note" x="40" y="282">First 3 steps draw 50-75% less power than steady state - torch.compile overhead visible in energy profile.</text>
+  </svg>
+</div>
+
+Notice the GPU ramp-up: step 0 draws only 200W because the model is still compiling, step 3 reaches 551W, and by step 200 it sustains 590W near full utilization.
+
+<ManualPageNav
+  prev={{ href: '/docs/cli', label: 'CLI Reference' }}
+  next={{ href: '/data-privacy', label: 'Data & Privacy' }}
+/>
+
+</div>

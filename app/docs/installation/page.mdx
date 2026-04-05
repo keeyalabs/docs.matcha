@@ -1,0 +1,145 @@
+---
+title: Installation
+description: Install Matcha and verify it works.
+---
+
+import { ManualPageNav } from '@/components/ManualPageNav'
+
+<div className="home-flow">
+
+# Installation
+
+<div className="home-diagram">
+  <svg width="100%" viewBox="0 0 680 280" xmlns="http://www.w3.org/2000/svg" aria-label="Installation commands for Matcha">
+    <style>
+      {`
+        text { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; }
+        .title { font-size: 13px; font-weight: 500; fill: #5F5E5A; }
+        .mono { font-size: 12px; font-weight: 400; fill: #2C2C2A; font-family: "SF Mono", "Fira Code", "Consolas", monospace; }
+        .mono-dim { font-size: 12px; font-weight: 400; fill: #888780; font-family: "SF Mono", "Fira Code", "Consolas", monospace; }
+        .terminal { fill: #F8F7F4; stroke: #D3D1C7; stroke-width: 0.5; }
+        .label { font-size: 11px; font-weight: 500; fill: #888780; letter-spacing: 0.5px; }
+      `}
+    </style>
+
+    <text className="label" x="40" y="24">PIP</text>
+    <rect className="terminal" x="40" y="34" width="600" height="36" rx="6" />
+    <text className="mono-dim" x="56" y="56" dominantBaseline="central">$</text>
+    <text className="mono" x="72" y="56" dominantBaseline="central">pip install usematcha</text>
+
+    <text className="label" x="40" y="100">UV</text>
+    <rect className="terminal" x="40" y="110" width="600" height="36" rx="6" />
+    <text className="mono-dim" x="56" y="132" dominantBaseline="central">$</text>
+    <text className="mono" x="72" y="132" dominantBaseline="central">uv pip install usematcha</text>
+
+    <text className="label" x="40" y="176">VERIFY</text>
+    <rect className="terminal" x="40" y="186" width="600" height="70" rx="6" />
+    <text className="mono-dim" x="56" y="210" dominantBaseline="central">$</text>
+    <text className="mono" x="72" y="210" dominantBaseline="central">matcha -​-version</text>
+    <line x1="56" y1="226" x2="624" y2="226" stroke="#D3D1C7" strokeWidth="0.5" strokeDasharray="3 3" />
+    <text className="mono" x="56" y="244" dominantBaseline="central">matcha 0.2.3</text>
+  </svg>
+</div>
+
+Also confirm your GPU is visible:
+
+<div className="home-diagram">
+  <svg width="100%" viewBox="0 0 680 88" xmlns="http://www.w3.org/2000/svg" aria-label="Monitor command">
+    <style>
+      {`
+        text { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; }
+        .mono { font-size: 12px; font-weight: 400; fill: #2C2C2A; font-family: "SF Mono", "Fira Code", "Consolas", monospace; }
+        .mono-dim { font-size: 12px; font-weight: 400; fill: #888780; font-family: "SF Mono", "Fira Code", "Consolas", monospace; }
+        .terminal { fill: #F8F7F4; stroke: #D3D1C7; stroke-width: 0.5; }
+        .label { font-size: 11px; font-weight: 500; fill: #888780; letter-spacing: 0.5px; }
+      `}
+    </style>
+    <text className="label" x="40" y="24">MONITOR</text>
+    <rect className="terminal" x="40" y="34" width="600" height="36" rx="6" />
+    <text className="mono-dim" x="56" y="56" dominantBaseline="central">$</text>
+    <text className="mono" x="72" y="56" dominantBaseline="central">matcha monitor -​-window 2</text>
+  </svg>
+</div>
+
+This prints live power readings every 2 seconds. If it works, Matcha can see your GPU. Press `Ctrl+C` to stop.
+
+## Requirements
+
+Matcha depends on `nvidia-ml-py`, the official NVIDIA Management Library bindings for Python. On most machines with PyTorch and CUDA installed, this is already present. If not, Matcha installs it automatically.
+
+Matcha does not install or modify PyTorch, CUDA, or any training framework.
+
+## Troubleshooting
+
+**`ImportError: pynvml is required`**
+
+The `nvidia-ml-py` package is missing. Install it:
+
+<div className="home-diagram">
+  <svg width="100%" viewBox="0 0 680 88" xmlns="http://www.w3.org/2000/svg" aria-label="Install nvidia-ml-py">
+    <style>
+      {`
+        text { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; }
+        .mono { font-size: 12px; font-weight: 400; fill: #2C2C2A; font-family: "SF Mono", "Fira Code", "Consolas", monospace; }
+        .mono-dim { font-size: 12px; font-weight: 400; fill: #888780; font-family: "SF Mono", "Fira Code", "Consolas", monospace; }
+        .terminal { fill: #F8F7F4; stroke: #D3D1C7; stroke-width: 0.5; }
+        .label { font-size: 11px; font-weight: 500; fill: #888780; letter-spacing: 0.5px; }
+      `}
+    </style>
+    <text className="label" x="40" y="24">FIX</text>
+    <rect className="terminal" x="40" y="34" width="600" height="36" rx="6" />
+    <text className="mono-dim" x="56" y="56" dominantBaseline="central">$</text>
+    <text className="mono" x="72" y="56" dominantBaseline="central">pip install nvidia-ml-py</text>
+  </svg>
+</div>
+
+**`NVMLError: driver not loaded`**
+
+NVIDIA drivers are not installed or the GPU is not accessible. Verify with:
+
+<div className="home-diagram">
+  <svg width="100%" viewBox="0 0 680 88" xmlns="http://www.w3.org/2000/svg" aria-label="Verify nvidia-smi">
+    <style>
+      {`
+        text { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; }
+        .mono { font-size: 12px; font-weight: 400; fill: #2C2C2A; font-family: "SF Mono", "Fira Code", "Consolas", monospace; }
+        .mono-dim { font-size: 12px; font-weight: 400; fill: #888780; font-family: "SF Mono", "Fira Code", "Consolas", monospace; }
+        .terminal { fill: #F8F7F4; stroke: #D3D1C7; stroke-width: 0.5; }
+        .label { font-size: 11px; font-weight: 500; fill: #888780; letter-spacing: 0.5px; }
+      `}
+    </style>
+    <text className="label" x="40" y="24">VERIFY DRIVER</text>
+    <rect className="terminal" x="40" y="34" width="600" height="36" rx="6" />
+    <text className="mono-dim" x="56" y="56" dominantBaseline="central">$</text>
+    <text className="mono" x="72" y="56" dominantBaseline="central">nvidia-smi</text>
+  </svg>
+</div>
+
+**`FutureWarning: The pynvml package is deprecated`**
+
+This comes from PyTorch, not Matcha. It is harmless. You can suppress it with:
+
+<div className="home-diagram">
+  <svg width="100%" viewBox="0 0 680 88" xmlns="http://www.w3.org/2000/svg" aria-label="Suppress FutureWarning">
+    <style>
+      {`
+        text { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; }
+        .mono { font-size: 12px; font-weight: 400; fill: #2C2C2A; font-family: "SF Mono", "Fira Code", "Consolas", monospace; }
+        .mono-dim { font-size: 12px; font-weight: 400; fill: #888780; font-family: "SF Mono", "Fira Code", "Consolas", monospace; }
+        .terminal { fill: #F8F7F4; stroke: #D3D1C7; stroke-width: 0.5; }
+        .label { font-size: 11px; font-weight: 500; fill: #888780; letter-spacing: 0.5px; }
+      `}
+    </style>
+    <text className="label" x="40" y="24">SUPPRESS WARNING</text>
+    <rect className="terminal" x="40" y="34" width="600" height="36" rx="6" />
+    <text className="mono-dim" x="56" y="56" dominantBaseline="central">$</text>
+    <text className="mono" x="72" y="56" dominantBaseline="central">PYTHONWARNINGS="ignore::FutureWarning" matcha run ...</text>
+  </svg>
+</div>
+
+<ManualPageNav
+  prev={{ href: '/docs', label: 'Overview' }}
+  next={{ href: '/docs/quick-start', label: 'Quick Start' }}
+/>
+
+</div>
