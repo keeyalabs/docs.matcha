@@ -59,6 +59,16 @@ Matcha plugs into any observability stack you already have. Pick one output or s
   </svg>
 </div>
 
+<div className="sr-only">
+
+`matcha wrap` forwards metrics to three sinks in parallel, any or all of which feed into your stack (Grafana, ClickHouse, and similar):
+
+- JSONL file — `--output run.jsonl`
+- Prometheus `/metrics` endpoint — `--prometheus :9400`
+- OTLP push — `--otlp https://...`
+
+</div>
+
 ## JSONL for files and ingestion
 
 Write structured records to a file with `--output`. Every run emits a `session_start` record, one `step` record per step, and a `session_end` record. Per-GPU breakdowns are included on every step.
@@ -82,6 +92,16 @@ Write structured records to a file with `--output`. Every run emits a `session_s
     <text className="mono" x="72" y="74" dominantBaseline="central">  -​-label team=capacity -​-label config=lr_3e-4</text>
     <text className="mono" x="72" y="92" dominantBaseline="central">  torchrun -​-standalone -​-nproc_per_node=8 train_gpt.py</text>
   </svg>
+</div>
+
+<div className="sr-only">
+
+```bash
+matcha wrap --output run.jsonl \
+    --label team=capacity --label config=lr_3e-4 \
+    torchrun --standalone --nproc_per_node=8 train_gpt.py
+```
+
 </div>
 
 A single step record, formatted for readability:
@@ -108,6 +128,18 @@ A single step record, formatted for readability:
   </svg>
 </div>
 
+<div className="sr-only">
+
+```json
+{"type":"step","step":1,"energy_j":2354.0,"duration_s":0.612,
+ "avg_power_w":3847,"peak_power_w":4120,
+ "train_metrics":{"train_loss":6.9357,"step_avg_ms":612.0},
+ "gpus":[{"idx":0,"energy_j":323.5,"avg_power_w":528.6},
+         {"idx":1,"energy_j":301.2}]}
+```
+
+</div>
+
 Stream straight into ClickHouse, DuckDB, Loki, or anything that reads JSON lines:
 
 <div className="home-diagram">
@@ -127,6 +159,14 @@ Stream straight into ClickHouse, DuckDB, Loki, or anything that reads JSON lines
     <text className="mono-dim" x="56" y="56" dominantBaseline="central">$</text>
     <text className="mono" x="72" y="56" dominantBaseline="central">cat run.jsonl | clickhouse-client -​-query "INSERT INTO energy_steps FORMAT JSONEachRow"</text>
   </svg>
+</div>
+
+<div className="sr-only">
+
+```bash
+cat run.jsonl | clickhouse-client --query "INSERT INTO energy_steps FORMAT JSONEachRow"
+```
+
 </div>
 
 Use `--json` to emit the same records to stdout instead of a file. With `matcha wrap`, prefer `--output` so JSONL does not interleave with your training output.
@@ -150,6 +190,14 @@ Use `--json` to emit the same records to stdout instead of a file. With `matcha 
     <text className="mono-dim" x="56" y="56" dominantBaseline="central">$</text>
     <text className="mono" x="72" y="56" dominantBaseline="central">matcha wrap -​-prometheus :9400 torchrun train.py</text>
   </svg>
+</div>
+
+<div className="sr-only">
+
+```bash
+matcha wrap --prometheus :9400 torchrun train.py
+```
+
 </div>
 
 Matcha serves a `/metrics` endpoint on the given port for any Prometheus-compatible scraper. Both live GPU gauges and step-level metrics are exposed.
@@ -191,6 +239,19 @@ Matcha serves a `/metrics` endpoint on the given port for any Prometheus-compati
   </svg>
 </div>
 
+<div className="sr-only">
+
+```
+matcha_step_energy_joules{run_id="...",gpu="0"}     2354.0
+matcha_step_duration_seconds{run_id="..."}          0.612
+matcha_step_peak_power_watts{run_id="..."}          4120
+matcha_step_gpu_energy_deviation_ratio{gpu="3"}    -0.18   # straggler
+matcha_metric_train_loss{run_id="..."}              6.9357
+matcha_metric_step_avg_ms{run_id="..."}             612.0
+```
+
+</div>
+
 One-line alert on a stuck rank:
 
 <div className="home-diagram">
@@ -210,6 +271,16 @@ One-line alert on a stuck rank:
     <text className="mono" x="56" y="74" dominantBaseline="central">  expr: matcha_step_gpu_energy_deviation_ratio {`<`} -0.15</text>
     <text className="mono" x="56" y="92" dominantBaseline="central">  for: 5m</text>
   </svg>
+</div>
+
+<div className="sr-only">
+
+```yaml
+- alert: GpuStraggler
+  expr: matcha_step_gpu_energy_deviation_ratio < -0.15
+  for: 5m
+```
+
 </div>
 
 ## OpenTelemetry / OTLP (push)
@@ -239,6 +310,19 @@ Install the OTLP extra and point Matcha at an OTLP/HTTP collector. The metric se
     <text className="mono" x="72" y="130" dominantBaseline="central">matcha wrap -​-otlp https://otlp-gateway.grafana.net/otlp</text>
     <text className="mono" x="72" y="144" dominantBaseline="central">  -​-otlp-header "Authorization=Basic &lt;token&gt;" torchrun train.py</text>
   </svg>
+</div>
+
+<div className="sr-only">
+
+```bash
+pip install 'usematcha[otlp]'
+
+matcha wrap \
+    --otlp https://otlp-gateway.grafana.net/otlp \
+    --otlp-header "Authorization=Basic <token>" \
+    torchrun train.py
+```
+
 </div>
 
 `--otlp-header` can be repeated for multiple headers. Works with Grafana Cloud, Honeycomb, Datadog, or any OTel collector accepting OTLP/HTTP.
@@ -284,6 +368,17 @@ In `wrap` mode, Matcha parses numeric fields from your stdout and surfaces them 
   </svg>
 </div>
 
+<div className="sr-only">
+
+| Stdout pattern | Extracted metric |
+| --- | --- |
+| `train_loss:6.9357` | `matcha_metric_train_loss` |
+| `lr=1.23e-4` | `matcha_metric_lr` |
+| `{'loss': 2.3, 'grad_norm': 0.8}` | `matcha_metric_loss`, `matcha_metric_grad_norm` |
+| `step_avg:612.0ms` | `matcha_metric_step_avg_ms` |
+
+</div>
+
 Pairing `matcha_metric_train_loss` with `matcha_step_energy_joules` in Grafana gives you an efficiency curve: joules per unit of loss reduction.
 
 ## Labels and run IDs
@@ -309,6 +404,16 @@ Attach arbitrary labels to a run for filtering across JSONL, Prometheus, and OTL
     <text className="mono" x="72" y="74" dominantBaseline="central">  -​-label team=capacity -​-label config=lr_3e-4</text>
     <text className="mono" x="72" y="92" dominantBaseline="central">  -​-prometheus :9400 torchrun train.py</text>
   </svg>
+</div>
+
+<div className="sr-only">
+
+```bash
+matcha wrap --run-id exp-2026-04-18-a \
+    --label team=capacity --label config=lr_3e-4 \
+    --prometheus :9400 torchrun train.py
+```
+
 </div>
 
 Labels appear as fields on every JSONL record and as Prometheus / OTLP label dimensions. `--label` is repeatable.

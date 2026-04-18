@@ -46,6 +46,20 @@ Prefix your training command with `matcha run`:
   </svg>
 </div>
 
+<div className="sr-only">
+
+```bash
+$ matcha run torchrun --standalone --nproc_per_node=1 train_gpt.py
+warmup_step:20/20
+step:1/20000 train_loss:6.9357 train_time:409ms
+step:1312/20000 val_loss:2.2944 train_time:600036ms
+stopping_early: wallclock_cap step:1312/20000
+
+matcha_energy gpus:NVIDIA H100 80GB HBM3 total:370342J (102.87Wh) duration:687.8s avg_power:538W peak_power:701W
+```
+
+</div>
+
 ## Reading the output
 
 <div className="home-diagram">
@@ -91,6 +105,19 @@ Prefix your training command with `matcha run`:
     <rect x="40" y="20" width="600" height="248" rx="6" fill="none" stroke="#D3D1C7" strokeWidth="0.5" />
     <line x1="200" y1="20" x2="200" y2="268" stroke="#D3D1C7" strokeWidth="0.5" />
   </svg>
+</div>
+
+<div className="sr-only">
+
+| Field | Meaning |
+| --- | --- |
+| `gpus` | GPU model and count (auto-detected) |
+| `total` | Total energy consumed — joules and watt-hours |
+| `duration` | Wall-clock time from start to finish |
+| `avg_power` | Mean GPU power draw across the run |
+| `peak_power` | Highest instantaneous power reading |
+| `samples` | Number of NVML readings (at 100ms intervals) |
+
 </div>
 
 ## What counts as duration

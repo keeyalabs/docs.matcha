@@ -62,6 +62,24 @@ nanoGPT-style model training on FineWeb with 1024 BPE vocabulary, 10-minute wall
   </svg>
 </div>
 
+<div className="sr-only">
+
+**Baseline — 17M params, 1×H100, 10 min**
+
+```bash
+$ matcha run torchrun --standalone --nproc_per_node=1 train_gpt.py
+step:1/20000 train_loss:6.9357 train_time:409ms
+step:1000/20000 train_loss:2.4040 train_time:454482ms
+step:1312/20000 val_loss:2.2944 val_bpb:1.3589
+stopping_early: wallclock_cap step:1312/20000
+
+matcha_energy gpus:NVIDIA H100 80GB HBM3 total:370342J (102.87Wh) duration:687.8s avg_power:538W peak_power:701W
+```
+
+Steps: 1,312. Energy: 103 Wh. Avg power: 538 W (77% of 700 W TDP). Cost: $0.01 energy / $0.48 compute.
+
+</div>
+
 Key numbers: 1,312 steps in 10 minutes, 103 Wh total, 538W average draw (77% of 700W TDP).
 
 ## SOTA model (27M params, 1xH100)
@@ -115,6 +133,24 @@ Larger model with SWA, quantization-aware training, GPTQ compression, and slidin
   </svg>
 </div>
 
+<div className="sr-only">
+
+**SOTA — 27M params, 1×H100, 30 min (training + GPTQ + eval)**
+
+```bash
+$ matcha run torchrun --standalone --nproc_per_node=1 train_gpt_sota.py
+step:909/20000 val_loss:2.3253 val_bpb:1.3772
+stopping_early: wallclock_cap step:909/20000
+gptq:generated 64 sequences in 204.3s
+final_int6_sliding_window val_bpb:1.8762
+
+matcha_energy gpus:NVIDIA H100 80GB HBM3 total:976085J (271.13Wh) duration:1825.5s avg_power:535W peak_power:704W
+```
+
+Steps: 909. Energy: 271 Wh (2.6× baseline — GPTQ + sliding eval). Avg power: 535 W (76% of TDP).
+
+</div>
+
 Key numbers: 271 Wh total (2.6x the baseline) due to post-training GPTQ quantization and sliding window evaluation adding 20+ minutes beyond the 10-minute training cap.
 
 ## Per-step energy (1xH100)
@@ -165,6 +201,26 @@ Key numbers: 271 Wh total (2.6x the baseline) due to post-training GPTQ quantiza
 
     <text className="note" x="40" y="282">First 3 steps draw 50-75% less power than steady state - torch.compile overhead visible in energy profile.</text>
   </svg>
+</div>
+
+<div className="sr-only">
+
+**Per-step energy — GPU ramp-up visible**
+
+```bash
+$ matcha wrap torchrun --standalone --nproc_per_node=1 train_gpt.py
+step:0/20000 ... energy:60.3J/step     # compiling, 200W
+step:1/20000 ... energy:106.7J/step    # warming up, 354W
+step:2/20000 ... energy:154.0J/step    # ramping, 508W
+step:3/20000 ... energy:221.8J/step    # near full, 551W
+...
+step:200/20000 ... energy:368.1J/step  # sustained, 590W
+
+matcha_energy gpus:NVIDIA H100 80GB HBM3 total:97271J (27.02Wh) duration:202.9s avg_power:479W peak_power:701W
+```
+
+First 3 steps draw 50–75% less power than steady state — `torch.compile` overhead visible in the energy profile.
+
 </div>
 
 Notice the GPU ramp-up: step 0 draws only 200W because the model is still compiling, step 3 reaches 551W, and by step 200 it sustains 590W near full utilization.

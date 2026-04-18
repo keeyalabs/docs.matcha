@@ -430,6 +430,21 @@ article.x\:w-full.x\:min-w-0.x\:break-words.x\:min-h-\[calc\(100vh-var\(--nextra
   margin: 1.25rem 0 1.75rem;
 }
 
+/* Plain-text mirrors of SVG diagrams. Invisible to sighted users, but
+   preserved in the DOM, markdown source, and copy-as-markdown output for
+   screen readers, search crawlers, and LLM agents. */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
 .home-diagram img {
   display: block;
   width: 100%;

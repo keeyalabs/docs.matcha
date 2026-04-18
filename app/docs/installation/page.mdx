@@ -41,6 +41,29 @@ import { ManualPageNav } from '@/components/ManualPageNav'
   </svg>
 </div>
 
+<div className="sr-only">
+
+Install with pip:
+
+```bash
+pip install usematcha
+```
+
+Or with uv:
+
+```bash
+uv pip install usematcha
+```
+
+Verify the install:
+
+```bash
+$ matcha --version
+matcha 0.2.3
+```
+
+</div>
+
 Also confirm your GPU is visible:
 
 <div className="home-diagram">
@@ -59,6 +82,14 @@ Also confirm your GPU is visible:
     <text className="mono-dim" x="56" y="56" dominantBaseline="central">$</text>
     <text className="mono" x="72" y="56" dominantBaseline="central">matcha monitor -​-window 2</text>
   </svg>
+</div>
+
+<div className="sr-only">
+
+```bash
+matcha monitor --window 2
+```
+
 </div>
 
 This prints live power readings every 2 seconds. If it works, Matcha can see your GPU. Press `Ctrl+C` to stop.
@@ -93,6 +124,14 @@ The `nvidia-ml-py` package is missing. Install it:
   </svg>
 </div>
 
+<div className="sr-only">
+
+```bash
+pip install nvidia-ml-py
+```
+
+</div>
+
 **`NVMLError: driver not loaded`**
 
 NVIDIA drivers are not installed or the GPU is not accessible. Verify with:
@@ -115,6 +154,14 @@ NVIDIA drivers are not installed or the GPU is not accessible. Verify with:
   </svg>
 </div>
 
+<div className="sr-only">
+
+```bash
+nvidia-smi
+```
+
+</div>
+
 **`FutureWarning: The pynvml package is deprecated`**
 
 This comes from PyTorch, not Matcha. It is harmless. You can suppress it with:
@@ -135,6 +182,14 @@ This comes from PyTorch, not Matcha. It is harmless. You can suppress it with:
     <text className="mono-dim" x="56" y="56" dominantBaseline="central">$</text>
     <text className="mono" x="72" y="56" dominantBaseline="central">PYTHONWARNINGS="ignore::FutureWarning" matcha run ...</text>
   </svg>
+</div>
+
+<div className="sr-only">
+
+```bash
+PYTHONWARNINGS="ignore::FutureWarning" matcha run ...
+```
+
 </div>
 
 <ManualPageNav
