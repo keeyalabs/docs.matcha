@@ -1,0 +1,321 @@
+---
+title: Observability
+description: Export Matcha metrics to JSONL, Prometheus, or OTLP.
+---
+
+import { ManualPageNav } from '@/components/ManualPageNav'
+
+<div className="home-flow">
+
+# Observability
+
+Matcha plugs into any observability stack you already have. Pick one output or several at once: a JSONL file, a Prometheus `/metrics` endpoint, or OTLP push to a collector.
+
+<div className="home-diagram">
+  <svg width="100%" viewBox="0 0 680 200" xmlns="http://www.w3.org/2000/svg" aria-label="Matcha observability outputs">
+    <style>
+      {`
+        text { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; }
+        .title { font-size: 13px; font-weight: 500; fill: #2C2C2A; }
+        .sub { font-size: 11px; font-weight: 400; fill: #5F5E5A; }
+        .box { fill: #F1EFE8; stroke: #D3D1C7; stroke-width: 0.5; }
+        .accent { fill: #E8F5E0; stroke: #9CC78C; stroke-width: 0.5; }
+      `}
+    </style>
+
+    <defs>
+      <marker id="obs-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+        <path d="M2 1L8 5L2 9" fill="none" stroke="#B4B2A9" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+      </marker>
+    </defs>
+
+    <rect className="accent" x="40" y="70" width="140" height="56" rx="8" />
+    <text className="title" x="110" y="92" textAnchor="middle" dominantBaseline="central">matcha wrap</text>
+    <text className="sub" x="110" y="110" textAnchor="middle" dominantBaseline="central">your training command</text>
+
+    <line x1="180" y1="98" x2="232" y2="44" stroke="#B4B2A9" strokeWidth="0.5" markerEnd="url(#obs-arrow)" />
+    <line x1="180" y1="98" x2="232" y2="98" stroke="#B4B2A9" strokeWidth="0.5" markerEnd="url(#obs-arrow)" />
+    <line x1="180" y1="98" x2="232" y2="152" stroke="#B4B2A9" strokeWidth="0.5" markerEnd="url(#obs-arrow)" />
+
+    <rect className="box" x="240" y="20" width="180" height="44" rx="8" />
+    <text className="title" x="330" y="36" textAnchor="middle" dominantBaseline="central">JSONL file</text>
+    <text className="sub" x="330" y="52" textAnchor="middle" dominantBaseline="central">--output run.jsonl</text>
+
+    <rect className="box" x="240" y="76" width="180" height="44" rx="8" />
+    <text className="title" x="330" y="92" textAnchor="middle" dominantBaseline="central">Prometheus /metrics</text>
+    <text className="sub" x="330" y="108" textAnchor="middle" dominantBaseline="central">--prometheus :9400</text>
+
+    <rect className="box" x="240" y="132" width="180" height="44" rx="8" />
+    <text className="title" x="330" y="148" textAnchor="middle" dominantBaseline="central">OTLP push</text>
+    <text className="sub" x="330" y="164" textAnchor="middle" dominantBaseline="central">--otlp https://...</text>
+
+    <line x1="420" y1="42" x2="472" y2="98" stroke="#B4B2A9" strokeWidth="0.5" markerEnd="url(#obs-arrow)" />
+    <line x1="420" y1="98" x2="472" y2="98" stroke="#B4B2A9" strokeWidth="0.5" markerEnd="url(#obs-arrow)" />
+    <line x1="420" y1="154" x2="472" y2="98" stroke="#B4B2A9" strokeWidth="0.5" markerEnd="url(#obs-arrow)" />
+
+    <rect className="box" x="480" y="70" width="160" height="56" rx="8" />
+    <text className="title" x="560" y="92" textAnchor="middle" dominantBaseline="central">your stack</text>
+    <text className="sub" x="560" y="110" textAnchor="middle" dominantBaseline="central">Grafana, ClickHouse, ...</text>
+  </svg>
+</div>
+
+## JSONL for files and ingestion
+
+Write structured records to a file with `--output`. Every run emits a `session_start` record, one `step` record per step, and a `session_end` record. Per-GPU breakdowns are included on every step.
+
+<div className="home-diagram">
+  <svg width="100%" viewBox="0 0 680 120" xmlns="http://www.w3.org/2000/svg" aria-label="Matcha wrap with JSONL output">
+    <style>
+      {`
+        text { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; }
+        .mono { font-size: 12px; font-weight: 400; fill: #2C2C2A; font-family: "SF Mono", "Fira Code", "Consolas", monospace; }
+        .mono-dim { font-size: 12px; font-weight: 400; fill: #888780; font-family: "SF Mono", "Fira Code", "Consolas", monospace; }
+        .terminal { fill: #F8F7F4; stroke: #D3D1C7; stroke-width: 0.5; }
+        .label { font-size: 11px; font-weight: 500; fill: #888780; letter-spacing: 0.5px; }
+      `}
+    </style>
+
+    <text className="label" x="40" y="24">JSONL OUTPUT</text>
+    <rect className="terminal" x="40" y="34" width="600" height="70" rx="6" />
+    <text className="mono-dim" x="56" y="56" dominantBaseline="central">$</text>
+    <text className="mono" x="72" y="56" dominantBaseline="central">matcha wrap -​-output run.jsonl</text>
+    <text className="mono" x="72" y="74" dominantBaseline="central">  -​-label team=capacity -​-label config=lr_3e-4</text>
+    <text className="mono" x="72" y="92" dominantBaseline="central">  torchrun -​-standalone -​-nproc_per_node=8 train_gpt.py</text>
+  </svg>
+</div>
+
+A single step record, formatted for readability:
+
+<div className="home-diagram">
+  <svg width="100%" viewBox="0 0 680 150" xmlns="http://www.w3.org/2000/svg" aria-label="Matcha JSONL step record">
+    <style>
+      {`
+        text { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; }
+        .mono { font-size: 12px; font-weight: 400; fill: #2C2C2A; font-family: "SF Mono", "Fira Code", "Consolas", monospace; }
+        .mono-key { font-size: 12px; font-weight: 400; fill: #3B7A3B; font-family: "SF Mono", "Fira Code", "Consolas", monospace; }
+        .terminal { fill: #F8F7F4; stroke: #D3D1C7; stroke-width: 0.5; }
+        .label { font-size: 11px; font-weight: 500; fill: #888780; letter-spacing: 0.5px; }
+      `}
+    </style>
+
+    <text className="label" x="40" y="24">STEP RECORD</text>
+    <rect className="terminal" x="40" y="34" width="600" height="104" rx="6" />
+    <text className="mono" x="56" y="56" dominantBaseline="central">{`{"type":"step","step":1,"energy_j":2354.0,"duration_s":0.612,`}</text>
+    <text className="mono" x="56" y="74" dominantBaseline="central">{` "avg_power_w":3847,"peak_power_w":4120,`}</text>
+    <text className="mono" x="56" y="92" dominantBaseline="central">{` "train_metrics":{"train_loss":6.9357,"step_avg_ms":612.0},`}</text>
+    <text className="mono" x="56" y="110" dominantBaseline="central">{` "gpus":[{"idx":0,"energy_j":323.5,"avg_power_w":528.6,...},`}</text>
+    <text className="mono" x="56" y="126" dominantBaseline="central">{`         {"idx":1,"energy_j":301.2,...}, ... ]}`}</text>
+  </svg>
+</div>
+
+Stream straight into ClickHouse, DuckDB, Loki, or anything that reads JSON lines:
+
+<div className="home-diagram">
+  <svg width="100%" viewBox="0 0 680 88" xmlns="http://www.w3.org/2000/svg" aria-label="Ingest JSONL into ClickHouse">
+    <style>
+      {`
+        text { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; }
+        .mono { font-size: 12px; font-weight: 400; fill: #2C2C2A; font-family: "SF Mono", "Fira Code", "Consolas", monospace; }
+        .mono-dim { font-size: 12px; font-weight: 400; fill: #888780; font-family: "SF Mono", "Fira Code", "Consolas", monospace; }
+        .terminal { fill: #F8F7F4; stroke: #D3D1C7; stroke-width: 0.5; }
+        .label { font-size: 11px; font-weight: 500; fill: #888780; letter-spacing: 0.5px; }
+      `}
+    </style>
+
+    <text className="label" x="40" y="24">INGEST</text>
+    <rect className="terminal" x="40" y="34" width="600" height="36" rx="6" />
+    <text className="mono-dim" x="56" y="56" dominantBaseline="central">$</text>
+    <text className="mono" x="72" y="56" dominantBaseline="central">cat run.jsonl | clickhouse-client -​-query "INSERT INTO energy_steps FORMAT JSONEachRow"</text>
+  </svg>
+</div>
+
+Use `--json` to emit the same records to stdout instead of a file. With `matcha wrap`, prefer `--output` so JSONL does not interleave with your training output.
+
+## Prometheus (pull)
+
+<div className="home-diagram">
+  <svg width="100%" viewBox="0 0 680 88" xmlns="http://www.w3.org/2000/svg" aria-label="Matcha Prometheus endpoint">
+    <style>
+      {`
+        text { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; }
+        .mono { font-size: 12px; font-weight: 400; fill: #2C2C2A; font-family: "SF Mono", "Fira Code", "Consolas", monospace; }
+        .mono-dim { font-size: 12px; font-weight: 400; fill: #888780; font-family: "SF Mono", "Fira Code", "Consolas", monospace; }
+        .terminal { fill: #F8F7F4; stroke: #D3D1C7; stroke-width: 0.5; }
+        .label { font-size: 11px; font-weight: 500; fill: #888780; letter-spacing: 0.5px; }
+      `}
+    </style>
+
+    <text className="label" x="40" y="24">PROMETHEUS</text>
+    <rect className="terminal" x="40" y="34" width="600" height="36" rx="6" />
+    <text className="mono-dim" x="56" y="56" dominantBaseline="central">$</text>
+    <text className="mono" x="72" y="56" dominantBaseline="central">matcha wrap -​-prometheus :9400 torchrun train.py</text>
+  </svg>
+</div>
+
+Matcha serves a `/metrics` endpoint on the given port for any Prometheus-compatible scraper. Both live GPU gauges and step-level metrics are exposed.
+
+<div className="home-diagram">
+  <svg width="100%" viewBox="0 0 680 180" xmlns="http://www.w3.org/2000/svg" aria-label="Prometheus metric names">
+    <style>
+      {`
+        text { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; }
+        .mono { font-size: 12px; font-weight: 400; fill: #2C2C2A; font-family: "SF Mono", "Fira Code", "Consolas", monospace; }
+        .mono-val { font-size: 12px; font-weight: 400; fill: #3B7A3B; font-family: "SF Mono", "Fira Code", "Consolas", monospace; }
+        .mono-dim { font-size: 11px; font-weight: 400; fill: #888780; font-family: "SF Mono", "Fira Code", "Consolas", monospace; font-style: italic; }
+        .terminal { fill: #F8F7F4; stroke: #D3D1C7; stroke-width: 0.5; }
+        .label { font-size: 11px; font-weight: 500; fill: #888780; letter-spacing: 0.5px; }
+      `}
+    </style>
+
+    <text className="label" x="40" y="24">/METRICS</text>
+    <rect className="terminal" x="40" y="34" width="600" height="134" rx="6" />
+
+    <text className="mono" x="56" y="58" dominantBaseline="central">matcha_step_energy_joules{`{run_id="...",gpu="0"}`}</text>
+    <text className="mono-val" x="500" y="58" dominantBaseline="central">2354.0</text>
+
+    <text className="mono" x="56" y="78" dominantBaseline="central">matcha_step_duration_seconds{`{run_id="..."}`}</text>
+    <text className="mono-val" x="500" y="78" dominantBaseline="central">0.612</text>
+
+    <text className="mono" x="56" y="98" dominantBaseline="central">matcha_step_peak_power_watts{`{run_id="..."}`}</text>
+    <text className="mono-val" x="500" y="98" dominantBaseline="central">4120</text>
+
+    <text className="mono" x="56" y="118" dominantBaseline="central">matcha_step_gpu_energy_deviation_ratio{`{gpu="3"}`}</text>
+    <text className="mono-val" x="500" y="118" dominantBaseline="central">-0.18</text>
+    <text className="mono-dim" x="560" y="118" dominantBaseline="central"># straggler</text>
+
+    <text className="mono" x="56" y="138" dominantBaseline="central">matcha_metric_train_loss{`{run_id="..."}`}</text>
+    <text className="mono-val" x="500" y="138" dominantBaseline="central">6.9357</text>
+
+    <text className="mono" x="56" y="158" dominantBaseline="central">matcha_metric_step_avg_ms{`{run_id="..."}`}</text>
+    <text className="mono-val" x="500" y="158" dominantBaseline="central">612.0</text>
+  </svg>
+</div>
+
+One-line alert on a stuck rank:
+
+<div className="home-diagram">
+  <svg width="100%" viewBox="0 0 680 120" xmlns="http://www.w3.org/2000/svg" aria-label="Prometheus straggler alert">
+    <style>
+      {`
+        text { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; }
+        .mono { font-size: 12px; font-weight: 400; fill: #2C2C2A; font-family: "SF Mono", "Fira Code", "Consolas", monospace; }
+        .terminal { fill: #F8F7F4; stroke: #D3D1C7; stroke-width: 0.5; }
+        .label { font-size: 11px; font-weight: 500; fill: #888780; letter-spacing: 0.5px; }
+      `}
+    </style>
+
+    <text className="label" x="40" y="24">ALERT RULE</text>
+    <rect className="terminal" x="40" y="34" width="600" height="70" rx="6" />
+    <text className="mono" x="56" y="56" dominantBaseline="central">- alert: GpuStraggler</text>
+    <text className="mono" x="56" y="74" dominantBaseline="central">  expr: matcha_step_gpu_energy_deviation_ratio {`<`} -0.15</text>
+    <text className="mono" x="56" y="92" dominantBaseline="central">  for: 5m</text>
+  </svg>
+</div>
+
+## OpenTelemetry / OTLP (push)
+
+Install the OTLP extra and point Matcha at an OTLP/HTTP collector. The metric set matches the Prometheus endpoint, so dashboards port between deployments.
+
+<div className="home-diagram">
+  <svg width="100%" viewBox="0 0 680 160" xmlns="http://www.w3.org/2000/svg" aria-label="Matcha OTLP push setup">
+    <style>
+      {`
+        text { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; }
+        .mono { font-size: 12px; font-weight: 400; fill: #2C2C2A; font-family: "SF Mono", "Fira Code", "Consolas", monospace; }
+        .mono-dim { font-size: 12px; font-weight: 400; fill: #888780; font-family: "SF Mono", "Fira Code", "Consolas", monospace; }
+        .terminal { fill: #F8F7F4; stroke: #D3D1C7; stroke-width: 0.5; }
+        .label { font-size: 11px; font-weight: 500; fill: #888780; letter-spacing: 0.5px; }
+      `}
+    </style>
+
+    <text className="label" x="40" y="24">INSTALL</text>
+    <rect className="terminal" x="40" y="34" width="600" height="36" rx="6" />
+    <text className="mono-dim" x="56" y="56" dominantBaseline="central">$</text>
+    <text className="mono" x="72" y="56" dominantBaseline="central">pip install 'usematcha[otlp]'</text>
+
+    <text className="label" x="40" y="100">PUSH</text>
+    <rect className="terminal" x="40" y="110" width="600" height="40" rx="6" />
+    <text className="mono-dim" x="56" y="130" dominantBaseline="central">$</text>
+    <text className="mono" x="72" y="130" dominantBaseline="central">matcha wrap -​-otlp https://otlp-gateway.grafana.net/otlp</text>
+    <text className="mono" x="72" y="144" dominantBaseline="central">  -​-otlp-header "Authorization=Basic &lt;token&gt;" torchrun train.py</text>
+  </svg>
+</div>
+
+`--otlp-header` can be repeated for multiple headers. Works with Grafana Cloud, Honeycomb, Datadog, or any OTel collector accepting OTLP/HTTP.
+
+## Training metrics (automatic)
+
+In `wrap` mode, Matcha parses numeric fields from your stdout and surfaces them alongside energy as `matcha_metric_*`. No configuration, no code changes. Works out of the box for nanoGPT, modded-nanogpt, parameter-golf, DeepSpeed, and HF Trainer.
+
+<div className="home-diagram">
+  <svg width="100%" viewBox="0 0 680 200" xmlns="http://www.w3.org/2000/svg" aria-label="Training metric extraction patterns">
+    <style>
+      {`
+        text { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; }
+        .hdr { font-size: 12px; font-weight: 500; fill: #5F5E5A; }
+        .pattern { font-size: 12px; font-weight: 400; fill: #2C2C2A; font-family: "SF Mono", "Fira Code", "Consolas", monospace; }
+        .out { font-size: 12px; font-weight: 400; fill: #3B7A3B; font-family: "SF Mono", "Fira Code", "Consolas", monospace; }
+        .row-bg { fill: #F8F7F4; }
+      `}
+    </style>
+
+    <rect x="40" y="20" width="600" height="32" rx="6" fill="#ECEAE2" />
+    <text className="hdr" x="60" y="40" dominantBaseline="central">Stdout pattern</text>
+    <text className="hdr" x="360" y="40" dominantBaseline="central">Extracted metric</text>
+
+    <rect x="40" y="56" width="600" height="32" className="row-bg" />
+    <text className="pattern" x="60" y="76" dominantBaseline="central">train_loss:6.9357</text>
+    <text className="out" x="360" y="76" dominantBaseline="central">matcha_metric_train_loss</text>
+
+    <rect x="40" y="92" width="600" height="32" fill="none" />
+    <text className="pattern" x="60" y="112" dominantBaseline="central">lr=1.23e-4</text>
+    <text className="out" x="360" y="112" dominantBaseline="central">matcha_metric_lr</text>
+
+    <rect x="40" y="128" width="600" height="32" className="row-bg" />
+    <text className="pattern" x="60" y="148" dominantBaseline="central">{`{'loss': 2.3, 'grad_norm': 0.8}`}</text>
+    <text className="out" x="360" y="148" dominantBaseline="central">matcha_metric_loss, ..._grad_norm</text>
+
+    <rect x="40" y="164" width="600" height="32" fill="none" />
+    <text className="pattern" x="60" y="184" dominantBaseline="central">step_avg:612.0ms</text>
+    <text className="out" x="360" y="184" dominantBaseline="central">matcha_metric_step_avg_ms</text>
+
+    <rect x="40" y="20" width="600" height="176" rx="6" fill="none" stroke="#D3D1C7" strokeWidth="0.5" />
+    <line x1="340" y1="20" x2="340" y2="196" stroke="#D3D1C7" strokeWidth="0.5" />
+  </svg>
+</div>
+
+Pairing `matcha_metric_train_loss` with `matcha_step_energy_joules` in Grafana gives you an efficiency curve: joules per unit of loss reduction.
+
+## Labels and run IDs
+
+Attach arbitrary labels to a run for filtering across JSONL, Prometheus, and OTLP. Use `--run-id` (or the `MATCHA_RUN_ID` env var) to pin a stable identifier so retries and resumed runs stay grouped.
+
+<div className="home-diagram">
+  <svg width="100%" viewBox="0 0 680 130" xmlns="http://www.w3.org/2000/svg" aria-label="Labels and run IDs">
+    <style>
+      {`
+        text { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; }
+        .mono { font-size: 12px; font-weight: 400; fill: #2C2C2A; font-family: "SF Mono", "Fira Code", "Consolas", monospace; }
+        .mono-dim { font-size: 12px; font-weight: 400; fill: #888780; font-family: "SF Mono", "Fira Code", "Consolas", monospace; }
+        .terminal { fill: #F8F7F4; stroke: #D3D1C7; stroke-width: 0.5; }
+        .label { font-size: 11px; font-weight: 500; fill: #888780; letter-spacing: 0.5px; }
+      `}
+    </style>
+
+    <text className="label" x="40" y="24">LABELS AND RUN ID</text>
+    <rect className="terminal" x="40" y="34" width="600" height="80" rx="6" />
+    <text className="mono-dim" x="56" y="56" dominantBaseline="central">$</text>
+    <text className="mono" x="72" y="56" dominantBaseline="central">matcha wrap -​-run-id exp-2026-04-18-a</text>
+    <text className="mono" x="72" y="74" dominantBaseline="central">  -​-label team=capacity -​-label config=lr_3e-4</text>
+    <text className="mono" x="72" y="92" dominantBaseline="central">  -​-prometheus :9400 torchrun train.py</text>
+  </svg>
+</div>
+
+Labels appear as fields on every JSONL record and as Prometheus / OTLP label dimensions. `--label` is repeatable.
+
+<ManualPageNav
+  prev={{ href: '/docs/multi-gpu', label: 'Multi-GPU' }}
+  next={{ href: '/docs/cli', label: 'CLI Reference' }}
+/>
+
+</div>

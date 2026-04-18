@@ -9,12 +9,117 @@ import { Layout, Navbar } from 'nextra-theme-docs'
 import 'nextra-theme-docs/style.css'
 import './globals.css'
 
+const SITE_URL = 'https://usematcha.dev'
+
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: {
-    default: 'Matcha',
+    default: 'Matcha — GPU energy observability for AI training',
     template: '%s | Matcha'
   },
-  description: 'Energy observability for AI workloads.'
+  description:
+    'Matcha measures GPU energy per training run and per step. No code changes. Structured output for any observability stack — JSONL, Prometheus, OpenTelemetry.',
+  applicationName: 'Matcha',
+  keywords: [
+    'GPU energy',
+    'AI training',
+    'energy observability',
+    'NVML',
+    'NVIDIA',
+    'Prometheus',
+    'OpenTelemetry',
+    'OTLP',
+    'per-step energy',
+    'training efficiency',
+    'H100',
+    'nanoGPT',
+    'DeepSpeed',
+    'HuggingFace Trainer',
+    'ML observability',
+    'power monitoring'
+  ],
+  authors: [{ name: 'Keeya Labs', url: 'https://keeyalabs.com' }],
+  creator: 'Keeya Labs',
+  publisher: 'Keeya Labs',
+  category: 'technology',
+  alternates: {
+    canonical: '/'
+  },
+  openGraph: {
+    type: 'website',
+    siteName: 'Matcha',
+    title: 'Matcha — GPU energy observability for AI training',
+    description:
+      'Measure GPU energy per training run and per step. No code changes. Export to JSONL, Prometheus, or OpenTelemetry.',
+    url: SITE_URL,
+    locale: 'en_US'
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Matcha — GPU energy observability for AI training',
+    description:
+      'Measure GPU energy per training run and per step. No code changes. Export to JSONL, Prometheus, or OpenTelemetry.'
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-snippet': -1,
+      'max-image-preview': 'large',
+      'max-video-preview': -1
+    }
+  }
+}
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'SoftwareApplication',
+      '@id': `${SITE_URL}#software`,
+      name: 'Matcha',
+      alternateName: 'usematcha',
+      applicationCategory: 'DeveloperApplication',
+      operatingSystem: 'Linux',
+      url: SITE_URL,
+      downloadUrl: 'https://pypi.org/project/usematcha/',
+      description:
+        'Command-line tool that measures GPU energy consumption per training run and per training step on NVIDIA GPUs. Exports to JSONL, Prometheus, and OpenTelemetry.',
+      softwareVersion: '0.2.3',
+      license: 'https://www.apache.org/licenses/LICENSE-2.0',
+      offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+      author: {
+        '@type': 'Organization',
+        name: 'Keeya Labs',
+        url: 'https://keeyalabs.com'
+      },
+      codeRepository: 'https://github.com/keeyalabs/usematcha'
+    },
+    {
+      '@type': 'WebSite',
+      '@id': `${SITE_URL}#website`,
+      url: SITE_URL,
+      name: 'Matcha',
+      description: 'GPU energy observability for AI training.',
+      publisher: {
+        '@type': 'Organization',
+        name: 'Keeya Labs',
+        url: 'https://keeyalabs.com'
+      }
+    },
+    {
+      '@type': 'Organization',
+      '@id': `${SITE_URL}#org`,
+      name: 'Keeya Labs',
+      url: 'https://keeyalabs.com',
+      sameAs: [
+        'https://github.com/keeyalabs',
+        'https://pypi.org/project/usematcha/'
+      ]
+    }
+  ]
 }
 
 export default async function RootLayout({
@@ -26,6 +131,12 @@ export default async function RootLayout({
 
   return (
     <html lang="en" className={GeistSans.className} suppressHydrationWarning>
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+      </head>
       <body className={GeistMono.variable}>
         <Layout
           copyPageButton={false}

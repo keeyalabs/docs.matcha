@@ -18,6 +18,9 @@ const meta = {
   'multi-gpu': {
     title: 'Multi-GPU'
   },
+  observability: {
+    title: 'Observability'
+  },
   cli: {
     title: 'CLI Reference'
   },
