@@ -110,6 +110,38 @@ Monitor GPU power continuously. Press `Ctrl+C` to stop.
   </svg>
 </div>
 
+<div className="sr-only">
+
+### `matcha run`
+
+Run a command and report total GPU energy when it finishes.
+
+| Option | Default | Description |
+| --- | --- | --- |
+| `--gpus` | `all` | GPU indices: `all`, `0`, or `0,1,2` |
+| `--interval` | `100` | NVML polling interval in ms |
+
+### `matcha wrap`
+
+Run a command and append per-step energy to training output.
+
+| Option | Default | Description |
+| --- | --- | --- |
+| `--gpus` | `all` | GPU indices: `all`, `0`, or `0,1,2` |
+| `--interval` | `100` | NVML polling interval in ms |
+
+### `matcha monitor`
+
+Monitor GPU power continuously. Press `Ctrl+C` to stop.
+
+| Option | Default | Description |
+| --- | --- | --- |
+| `--gpus` | `all` | GPU indices: `all`, `0`, or `0,1,2` |
+| `--interval` | `100` | NVML polling interval in ms |
+| `--window` | `1.0` | Reporting window in seconds |
+
+</div>
+
 ## matcha --version
 
 Print the installed version.
@@ -131,6 +163,14 @@ Print the installed version.
     <text className="mono-dim" x="56" y="56" dominantBaseline="central">$</text>
     <text className="mono" x="72" y="56" dominantBaseline="central">matcha -​-version</text>
   </svg>
+</div>
+
+<div className="sr-only">
+
+```bash
+matcha --version
+```
+
 </div>
 
 <ManualPageNav

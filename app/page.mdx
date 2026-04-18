@@ -79,6 +79,25 @@ You run your training script as usual. Matcha runs alongside it and records ener
   </svg>
 </div>
 
+<div className="sr-only">
+
+Matcha workflow: **run** (start your training) → **measure** (capture GPU energy) → **analyze** (break down per step) → **compare** (find what to optimize).
+
+```bash
+pip install usematcha
+matcha run torchrun --nproc_per_node=8 train.py
+```
+
+Sample output:
+
+```
+step:1709/20000 val_bpb:1.3095 train_time:600097ms
+final_int8_zlib_roundtrip val_bpb:1.31072868
+matcha_energy total:364722J (101Wh) avg_power:489W peak:700W
+```
+
+</div>
+
 <HomeFaqInline />
 
 <ManualPageNav next={{ href: '/docs/overview', label: 'Get Started' }} />

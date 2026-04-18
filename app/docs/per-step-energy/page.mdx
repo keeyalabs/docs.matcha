@@ -53,6 +53,21 @@ import { ManualPageNav } from '@/components/ManualPageNav'
   </svg>
 </div>
 
+<div className="sr-only">
+
+```bash
+$ matcha wrap torchrun --standalone --nproc_per_node=1 train_gpt.py
+warmup_step:20/20
+step:1/20000 train_loss:6.9357 train_time:438ms energy:106.7J/step
+step:2/20000 train_loss:16.7414 train_time:833ms energy:154.0J/step
+step:3/20000 train_loss:8.7524 train_time:1258ms energy:221.8J/step
+...
+
+matcha_energy gpus:NVIDIA H100 80GB HBM3 total:97271J (27.02Wh) duration:202.9s avg_power:479W peak_power:701W
+```
+
+</div>
+
 Non-step lines like config, warmup, and validation pass through unchanged.
 
 At the end, the same summary line as `matcha run` is printed:
@@ -72,6 +87,14 @@ At the end, the same summary line as `matcha run` is printed:
     <rect className="terminal" x="40" y="34" width="600" height="40" rx="6" />
     <text className="mono" x="56" y="58" dominantBaseline="central">matcha_energy gpus:NVIDIA H100 80GB HBM3 total:97271J (27.02Wh) duration:202.9s avg_power:479W peak_power:701W samples:2025</text>
   </svg>
+</div>
+
+<div className="sr-only">
+
+```
+matcha_energy gpus:NVIDIA H100 80GB HBM3 total:97271J (27.02Wh) duration:202.9s avg_power:479W peak_power:701W samples:2025
+```
+
 </div>
 
 ## How step detection works
@@ -119,6 +142,18 @@ Matcha scans each line of stdout for patterns that indicate a training step. The
   </svg>
 </div>
 
+<div className="sr-only">
+
+| Pattern | Example |
+| --- | --- |
+| `step N` | `step 100` |
+| `step:N` | `step:100/20000` |
+| `iter N` | `iter 100` |
+| `iteration N` | `iteration 100` |
+| `[N/M]` | `[100/20000]` |
+
+</div>
+
 Lines containing `warmup` are always skipped.
 
 When Matcha sees step `N`, it ends the measurement for the previous step and starts a new one. Energy is computed from the NVML readings collected between the two step markers.
@@ -143,6 +178,15 @@ If your training script logs every 200 steps, for example step `10` and then ste
     <text className="mono" x="56" y="56" dominantBaseline="central">step:10/20000 ... energy:242.1J/step avg_power:535W peak_power:606W</text>
     <text className="mono" x="56" y="76" dominantBaseline="central">step:200/20000 ... energy:356.6J/step avg_power:581W peak_power:700W</text>
   </svg>
+</div>
+
+<div className="sr-only">
+
+```
+step:10/20000 ... energy:242.1J/step avg_power:535W peak_power:606W
+step:200/20000 ... energy:356.6J/step avg_power:581W peak_power:700W
+```
+
 </div>
 
 The `energy` field always shows a per-step average, whether the gap is 1 step or 500.
@@ -192,6 +236,13 @@ Use `matcha wrap` for diagnosis, finding energy spikes, identifying inefficient 
     <text className="sub" x="370" y="108" dominantBaseline="central">Parses stdout for step markers</text>
     <text className="sub" x="370" y="124" dominantBaseline="central">Use for finding inefficiencies</text>
   </svg>
+</div>
+
+<div className="sr-only">
+
+- **`matcha run` (recommended)** — total energy at the end, zero overhead, no stdout piping. Use for benchmarks and production.
+- **`matcha wrap` (diagnostic)** — energy per training step, parses stdout for step markers. Use for finding inefficiencies.
+
 </div>
 
 <ManualPageNav

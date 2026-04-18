@@ -44,6 +44,24 @@ By default, Matcha detects all NVIDIA GPUs on the machine and sums power reading
   </svg>
 </div>
 
+<div className="sr-only">
+
+```bash
+# all GPUs (default — auto-detects all 8 GPUs, sums power across them)
+matcha run torchrun --standalone --nproc_per_node=8 train.py
+
+# specific GPUs (only polls GPUs 0 through 3)
+matcha run --gpus 0,1,2,3 torchrun --nproc_per_node=4 train.py
+```
+
+Example output on 8xH100:
+
+```
+matcha_energy gpus:8x NVIDIA H100 80GB HBM3 total:2920000J (811Wh)
+```
+
+</div>
+
 ## How it works
 
 Every 100ms, Matcha reads `nvmlDeviceGetPowerUsage` for each monitored GPU and sums the values into a single power reading. Trapezoidal integration then computes total energy from these summed readings.

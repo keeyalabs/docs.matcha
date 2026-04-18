@@ -85,6 +85,12 @@ Matcha spawns your training command as a child process. In a separate background
   </svg>
 </div>
 
+<div className="sr-only">
+
+How Matcha works: `matcha run your_command` spawns two parallel paths. The **training process** runs natively and writes **stdout** direct to the terminal. In parallel, an **NVML thread** polls GPU power every 100ms and records power readings as `(timestamp, watts)` tuples. When the training process exits, Matcha prints a **summary** line with total energy and average/peak power. Training and NVML polling run in parallel with zero interaction and zero overhead.
+
+</div>
+
 When the training process exits, Matcha computes total energy using trapezoidal integration of the power readings and prints a single summary line.
 
 ## What you need
